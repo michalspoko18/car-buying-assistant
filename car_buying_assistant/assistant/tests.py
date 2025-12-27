@@ -1,5 +1,5 @@
 from django.test import TestCase
-from agent.utils import get_openai_client
+from assistant.utils import get_openai_client
 
 
 class OpenAIClientTestCase(TestCase):
