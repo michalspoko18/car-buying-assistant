@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% block content %}
-<div class="jumbotron mt-4">
+<div class="mt-4">
   <h1 class="display-4">Welcome to the Car Buying Assistant!</h1>
   <p class="lead">Your personal assistant to help you find the perfect car.</p>
   <hr class="my-4" />
@@ -7,6 +7,19 @@
     Use our tools and resources to make an informed decision on your next
     vehicle purchase.
   </p>
-  <a class="btn btn-primary btn-lg" href="#" role="button">Get Started</a>
+
+  <form method="post" class="mt-3">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary btn-lg">Analyze</button>
+  </form>
+
+  {% if response %}
+  <div class="card mt-4">
+    <div class="card-body">
+      <h5 class="card-title">AI Response</h5>
+      <pre class="mb-0">{{ response }}</pre>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
