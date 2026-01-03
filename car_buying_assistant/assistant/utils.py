@@ -6,11 +6,11 @@ def get_openai_api_key():
     return settings.OPENAI_API_KEY
 
 
-def get_openai_client(marka: str, model: str) -> str:
+def get_openai_client(brand: str, model: str) -> str:
     client = OpenAI()
 
     input_text = (
-        f"Opisz krótko samochód {marka} {model}.\n"
+        f"Opisz krótko samochód {brand} {model}.\n"
         "Wypisz plusy, minusy i dla kogo to auto jest dobrym wyborem.\n"
         "Odpowiedź w języku polskim, maksymalnie 200–300 słów."
     )

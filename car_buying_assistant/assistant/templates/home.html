@@ -8,7 +8,15 @@
     vehicle purchase.
   </p>
 
-  <form method="post" class="mt-3">
+  <form method="post">
+    <label for="brand">Brand: </label>
+    <select name="brand" id="brand">
+      {% for make in makes %}
+      <option value="{{ make.id_car_make }}">{{ make.name }}</option>
+      {% endfor %}
+    </select>
+    <label for="model">Model: </label>
+    <input id="model" type="text" name="model" value="{{ model }}" />
     {% csrf_token %}
     <button type="submit" class="btn btn-primary btn-lg">Analyze</button>
   </form>
