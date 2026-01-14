@@ -8,15 +8,13 @@
     vehicle purchase.
   </p>
 
-  <form method="post">
-    <label for="brand">Brand: </label>
-    <select name="brand" id="brand">
-      {% for make in makes %}
-      <option value="{{ make.id_car_make }}">{{ make.name }}</option>
-      {% endfor %}
-    </select>
-    <label for="model">Model: </label>
-    <input id="model" type="text" name="model" value="{{ model }}" />
+  <form method="post" id="car-form">
+    <label for="{{ form.brand.id_for_label }}">Brand: </label>
+    {{ form.brand }}
+    <label for="{{ form.model.id_for_label }}">Model: </label>
+    {{ form.model }}
+    <label for="{{ form.specification.id_for_label }}">Specification: </label>
+    {{ form.specification }}
     {% csrf_token %}
     <button type="submit" class="btn btn-primary btn-lg">Analyze</button>
   </form>
@@ -30,4 +28,13 @@
   </div>
   {% endif %}
 </div>
+<script>
+  const brandField = document.getElementById("{{ form.brand.id_for_label }}");
+  const carForm = document.getElementById("car-form");
+  if (brandField && carForm) {
+    brandField.addEventListener("change", () => {
+      carForm.submit();
+    });
+  }
+</script>
 {% endblock %}
