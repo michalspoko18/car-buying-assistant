@@ -1,0 +1,33 @@
+{% extends "base.html" %}{% block content %}
+<div class="mt-4">
+  <h1 class="display-4">Welcome to the Car Buying Assistant!</h1>
+  <p class="lead">Your personal assistant to help you find the perfect car.</p>
+  <hr class="my-4" />
+  <p>
+    Use our tools and resources to make an informed decision on your next
+    vehicle purchase.
+  </p>
+
+  <form method="post">
+    <label for="brand">Brand: </label>
+    <select name="brand" id="brand">
+      {% for make in makes %}
+      <option value="{{ make.id_car_make }}">{{ make.name }}</option>
+      {% endfor %}
+    </select>
+    <label for="model">Model: </label>
+    <input id="model" type="text" name="model" value="{{ model }}" />
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary btn-lg">Analyze</button>
+  </form>
+
+  {% if response %}
+  <div class="card mt-4">
+    <div class="card-body">
+      <h5 class="card-title">AI Response</h5>
+      <pre class="mb-0">{{ response }}</pre>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
