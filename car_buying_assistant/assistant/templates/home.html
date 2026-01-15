@@ -62,25 +62,41 @@
   </div>
   {% endif %}
 </div>
-<script>
+  <script>
+  // Pokazuj kolejne selecty tylko gdy mają opcje do wyboru
   const watchFieldIds = [
     "{{ form.brand.id_for_label }}",
     "{{ form.model.id_for_label }}",
     "{{ form.generation.id_for_label }}",
     "{{ form.series.id_for_label }}",
     "{{ form.modification.id_for_label }}",
+    "{{ form.equipment.id_for_label }}",
   ];
-  const carForm = document.getElementById("car-form");
-  if (carForm) {
+
+  function updateVisibility() {
     watchFieldIds.forEach((fieldId) => {
       const field = document.getElementById(fieldId);
-      if (!field) {
-        return;
-      }
+      if (!field) return;
+      const group = field.closest('.form-group');
+      if (!group) return;
+      const opts = field.options ? field.options.length : 0;
+      // Jeśli jest tylko jeden option (placeholder), ukryj pole
+      if (opts <= 1) group.style.display = 'none';
+      else group.style.display = '';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const carForm = document.getElementById("car-form");
+    updateVisibility();
+    if (!carForm) return;
+    watchFieldIds.forEach((fieldId) => {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
       field.addEventListener("change", () => {
         carForm.submit();
       });
     });
-  }
+  });
 </script>
 {% endblock %}
