@@ -2,14 +2,7 @@
 <div class="mt-4">
   <form method="post" id="car-form" class="car-form">
     {% csrf_token %}
-    <div class="form-group row align-items-center">
-      <label
-        for="{{ form.car_type.id_for_label }}"
-        class="col-sm-4 col-form-label font-weight-bold text-secondary"
-        >{{ form.car_type.label }}</label
-      >
-      <div class="col-sm-8">{{ form.car_type }}</div>
-    </div>
+    <!-- Typ pojazdu usunięty (domyślnie 'osobowy') -->
     <div class="form-group row align-items-center">
       <label
         for="{{ form.brand.id_for_label }}"
@@ -71,7 +64,6 @@
 </div>
 <script>
   const watchFieldIds = [
-    "{{ form.car_type.id_for_label }}",
     "{{ form.brand.id_for_label }}",
     "{{ form.model.id_for_label }}",
     "{{ form.generation.id_for_label }}",

@@ -10,13 +10,13 @@ def home(request):
     if request.method == "POST":
         try:
             if form.is_valid():
-                car_type = form.cleaned_data["car_type"]
                 brand = form.cleaned_data["brand"]
                 model = form.cleaned_data["model"]
                 generation = form.cleaned_data["generation"]
                 series = form.cleaned_data["series"]
                 modification = form.cleaned_data["modification"]
                 equipment = form.cleaned_data["equipment"]
+                car_type = "osobowy"
                 context["response"] = (
                     "Received type: "
                     f"{car_type}, brand: {brand}, model: {model}, "
@@ -31,6 +31,6 @@ def home(request):
         "home.html",
         {
             "form": form,
-            "response": context
+            "response": context.get("response")
         },
     )
