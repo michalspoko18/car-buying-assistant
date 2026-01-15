@@ -24,6 +24,7 @@ def home(request):
                 series = form.cleaned_data["series"]
                 modification = form.cleaned_data["modification"]
                 equipment = form.cleaned_data["equipment"]
+                advanced = form.cleaned_data["advanced"]
                 car_type = "osobowy"
 
                 def _label_for(model, pk_field, value):
@@ -52,18 +53,18 @@ def home(request):
                     "pref_comfort",
                 ]
                 pref_labels = []
-                for pf in pref_fields:
-                    val = form.cleaned_data.get(pf)
-                    # build mapping from that field's choices
-                    choices = getattr(form.fields, "__getitem__", None)
-                    try:
-                        field_choices = form.fields[pf].choices
-                        # field_choices is list of (value,label)
-                        label_map = {k: v for k, v in field_choices}
-                        if val:
-                            pref_labels.append(label_map.get(val, val))
-                    except Exception:
-                        continue
+                if advanced:
+                    for pf in pref_fields:
+                        val = form.cleaned_data.get(pf)
+                        # build mapping from that field's choices
+                        try:
+                            field_choices = form.fields[pf].choices
+                            # field_choices is list of (value,label)
+                            label_map = {k: v for k, v in field_choices}
+                            if val:
+                                pref_labels.append(label_map.get(val, val))
+                        except Exception:
+                            continue
 
                 context["response"] = (
                     "Received type: "
