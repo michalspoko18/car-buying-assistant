@@ -157,6 +157,15 @@
     const carForm = document.getElementById("car-form");
     const advancedCheckbox = document.getElementById("{{ form.advanced.id_for_label }}");
     const advancedGroup = document.getElementById("advanced-options-group");
+    const savedScroll = sessionStorage.getItem("scrollY");
+    if (savedScroll) {
+      window.scrollTo(0, Number(savedScroll));
+      sessionStorage.removeItem("scrollY");
+    }
+
+    window.addEventListener("beforeunload", () => {
+      sessionStorage.setItem("scrollY", window.scrollY.toString());
+    });
 
     function toggleAdvanced() {
       if (!advancedCheckbox || !advancedGroup) return;
