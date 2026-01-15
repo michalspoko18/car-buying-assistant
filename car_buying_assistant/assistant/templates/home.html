@@ -1,22 +1,63 @@
 {% extends "base.html" %}{% block content %}
 <div class="mt-4">
-  <h1 class="display-4">Welcome to the Car Buying Assistant!</h1>
-  <p class="lead">Your personal assistant to help you find the perfect car.</p>
-  <hr class="my-4" />
-  <p>
-    Use our tools and resources to make an informed decision on your next
-    vehicle purchase.
-  </p>
-
-  <form method="post" id="car-form">
-    <label for="{{ form.brand.id_for_label }}">Brand: </label>
-    {{ form.brand }}
-    <label for="{{ form.model.id_for_label }}">Model: </label>
-    {{ form.model }}
-    <label for="{{ form.specification.id_for_label }}">Specification: </label>
-    {{ form.specification }}
+  <form method="post" id="car-form" class="car-form">
     {% csrf_token %}
-    <button type="submit" class="btn btn-primary btn-lg">Analyze</button>
+    <div class="form-group row align-items-center">
+      <label
+        for="{{ form.car_type.id_for_label }}"
+        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        >{{ form.car_type.label }}</label
+      >
+      <div class="col-sm-8">{{ form.car_type }}</div>
+    </div>
+    <div class="form-group row align-items-center">
+      <label
+        for="{{ form.brand.id_for_label }}"
+        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        >{{ form.brand.label }}</label
+      >
+      <div class="col-sm-8">{{ form.brand }}</div>
+    </div>
+    <div class="form-group row align-items-center">
+      <label
+        for="{{ form.model.id_for_label }}"
+        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        >{{ form.model.label }}</label
+      >
+      <div class="col-sm-8">{{ form.model }}</div>
+    </div>
+    <div class="form-group row align-items-center">
+      <label
+        for="{{ form.generation.id_for_label }}"
+        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        >{{ form.generation.label }}</label
+      >
+      <div class="col-sm-8">{{ form.generation }}</div>
+    </div>
+    <div class="form-group row align-items-center">
+      <label
+        for="{{ form.series.id_for_label }}"
+        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        >{{ form.series.label }}</label
+      >
+      <div class="col-sm-8">{{ form.series }}</div>
+    </div>
+    <div class="form-group row align-items-center">
+      <label
+        for="{{ form.modification.id_for_label }}"
+        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        >{{ form.modification.label }}</label
+      >
+      <div class="col-sm-8">{{ form.modification }}</div>
+    </div>
+    <div class="form-group row align-items-center mb-0">
+      <label
+        for="{{ form.equipment.id_for_label }}"
+        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        >{{ form.equipment.label }}</label
+      >
+      <div class="col-sm-8">{{ form.equipment }}</div>
+    </div>
   </form>
 
   {% if response %}
@@ -29,11 +70,24 @@
   {% endif %}
 </div>
 <script>
-  const brandField = document.getElementById("{{ form.brand.id_for_label }}");
+  const watchFieldIds = [
+    "{{ form.car_type.id_for_label }}",
+    "{{ form.brand.id_for_label }}",
+    "{{ form.model.id_for_label }}",
+    "{{ form.generation.id_for_label }}",
+    "{{ form.series.id_for_label }}",
+    "{{ form.modification.id_for_label }}",
+  ];
   const carForm = document.getElementById("car-form");
-  if (brandField && carForm) {
-    brandField.addEventListener("change", () => {
-      carForm.submit();
+  if (carForm) {
+    watchFieldIds.forEach((fieldId) => {
+      const field = document.getElementById(fieldId);
+      if (!field) {
+        return;
+      }
+      field.addEventListener("change", () => {
+        carForm.submit();
+      });
     });
   }
 </script>
