@@ -171,6 +171,7 @@
     if (advancedCheckbox) {
       advancedCheckbox.addEventListener("change", () => {
         toggleAdvanced();
+        carForm.submit();
       });
     }
 
@@ -178,6 +179,15 @@
       const field = document.getElementById(fieldId);
       if (!field) return;
       field.addEventListener("change", () => {
+        carForm.submit();
+      });
+    });
+
+    const preferenceInputs = advancedGroup
+      ? advancedGroup.querySelectorAll('input[type="radio"]')
+      : [];
+    preferenceInputs.forEach((input) => {
+      input.addEventListener("change", () => {
         carForm.submit();
       });
     });
