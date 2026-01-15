@@ -10,12 +10,18 @@ def home(request):
     if request.method == "POST":
         try:
             if form.is_valid():
+                car_type = form.cleaned_data["car_type"]
                 brand = form.cleaned_data["brand"]
                 model = form.cleaned_data["model"]
-                specification = form.cleaned_data["specification"]
+                generation = form.cleaned_data["generation"]
+                series = form.cleaned_data["series"]
+                modification = form.cleaned_data["modification"]
+                equipment = form.cleaned_data["equipment"]
                 context["response"] = (
-                    f"Received brand: {brand}, model: {model}, "
-                    f"specification: {specification}"
+                    "Received type: "
+                    f"{car_type}, brand: {brand}, model: {model}, "
+                    f"generation: {generation}, series: {series}, "
+                    f"modification: {modification}, equipment: {equipment}"
                 )
         except Exception as exc:
             context["response"] = f"Error calling OpenAI: {exc}"
