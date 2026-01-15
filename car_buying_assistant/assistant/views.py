@@ -42,11 +42,35 @@ def home(request):
                 modification_label = _label_for(CarTrim, "id_car_trim", modification)
                 equipment_label = _label_for(CarEquipment, "id_car_equipment", equipment)
 
+                # collect grouped preference selections (radio fields)
+                pref_fields = [
+                    "pref_economy",
+                    "pref_family",
+                    "pref_reliability",
+                    "pref_performance",
+                    "pref_usage",
+                    "pref_comfort",
+                ]
+                pref_labels = []
+                for pf in pref_fields:
+                    val = form.cleaned_data.get(pf)
+                    # build mapping from that field's choices
+                    choices = getattr(form.fields, "__getitem__", None)
+                    try:
+                        field_choices = form.fields[pf].choices
+                        # field_choices is list of (value,label)
+                        label_map = {k: v for k, v in field_choices}
+                        if val:
+                            pref_labels.append(label_map.get(val, val))
+                    except Exception:
+                        continue
+
                 context["response"] = (
                     "Received type: "
                     f"{car_type}, brand: {brand_label}, model: {model_label}, "
                     f"generation: {generation_label}, series: {series_label}, "
-                    f"modification: {modification_label}, equipment: {equipment_label}"
+                    f"modification: {modification_label}, equipment: {equipment_label}, "
+                    f"preferences: {', '.join(pref_labels)}"
                 )
         except Exception as exc:
             context["response"] = f"Error calling OpenAI: {exc}"

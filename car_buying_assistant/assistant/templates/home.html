@@ -51,6 +51,46 @@
       >
       <div class="col-sm-8">{{ form.equipment }}</div>
     </div>
+    <div class="form-group row align-items-center">
+      <label
+        for="{{ form.advanced.id_for_label }}"
+        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        >{{ form.advanced.label }}</label
+      >
+      <div class="col-sm-8">{{ form.advanced }}</div>
+    </div>
+
+    <div id="advanced-options-group" class="mt-2">
+      <div class="card p-3">
+        <h6>Dodatkowe preferencje</h6>
+        <div class="preferences-list">
+          <div class="mb-2">
+            <label class="font-weight-bold">{{ form.pref_economy.label }}</label>
+            <div>{{ form.pref_economy }}</div>
+          </div>
+          <div class="mb-2">
+            <label class="font-weight-bold">{{ form.pref_family.label }}</label>
+            <div>{{ form.pref_family }}</div>
+          </div>
+          <div class="mb-2">
+            <label class="font-weight-bold">{{ form.pref_reliability.label }}</label>
+            <div>{{ form.pref_reliability }}</div>
+          </div>
+          <div class="mb-2">
+            <label class="font-weight-bold">{{ form.pref_performance.label }}</label>
+            <div>{{ form.pref_performance }}</div>
+          </div>
+          <div class="mb-2">
+            <label class="font-weight-bold">{{ form.pref_usage.label }}</label>
+            <div>{{ form.pref_usage }}</div>
+          </div>
+          <div class="mb-2">
+            <label class="font-weight-bold">{{ form.pref_comfort.label }}</label>
+            <div>{{ form.pref_comfort }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </form>
 
   {% if response %}
@@ -88,8 +128,25 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     const carForm = document.getElementById("car-form");
+    const advancedCheckbox = document.getElementById("{{ form.advanced.id_for_label }}");
+    const advancedGroup = document.getElementById("advanced-options-group");
+
+    function toggleAdvanced() {
+      if (!advancedCheckbox || !advancedGroup) return;
+      advancedGroup.style.display = advancedCheckbox.checked ? "" : "none";
+      updateVisibility();
+    }
+
     updateVisibility();
+    toggleAdvanced();
+
     if (!carForm) return;
+    if (advancedCheckbox) {
+      advancedCheckbox.addEventListener("change", () => {
+        toggleAdvanced();
+      });
+    }
+
     watchFieldIds.forEach((fieldId) => {
       const field = document.getElementById(fieldId);
       if (!field) return;
