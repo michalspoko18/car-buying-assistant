@@ -1,91 +1,116 @@
 {% extends "base.html" %}{% block content %}
-<div class="mt-4">
-  <form method="post" id="car-form" class="car-form">
+<section class="space-y-6">
+  <div class="space-y-1">
+    <h1 class="text-2xl font-semibold text-slate-900">Car Buying Assistant</h1>
+    <p class="text-sm text-slate-600">
+      Wybierz markę i model, aby zawęzić wyniki oraz dopasować preferencje.
+    </p>
+  </div>
+  <form
+    method="post"
+    id="car-form"
+    class="space-y-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+  >
     {% csrf_token %}
     <!-- Typ pojazdu usunięty (domyślnie 'osobowy') -->
-    <div class="form-group row align-items-center">
+    <div class="form-row grid gap-2 md:grid-cols-[220px,1fr] md:items-center">
       <label
         for="{{ form.brand.id_for_label }}"
-        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        class="text-sm font-semibold text-slate-600"
         >{{ form.brand.label }}</label
       >
-      <div class="col-sm-8">{{ form.brand }}</div>
+      <div>{{ form.brand }}</div>
     </div>
-    <div class="form-group row align-items-center">
+    <div class="form-row grid gap-2 md:grid-cols-[220px,1fr] md:items-center">
       <label
         for="{{ form.model.id_for_label }}"
-        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        class="text-sm font-semibold text-slate-600"
         >{{ form.model.label }}</label
       >
-      <div class="col-sm-8">{{ form.model }}</div>
+      <div>{{ form.model }}</div>
     </div>
-    <div class="form-group row align-items-center">
+    <div class="form-row grid gap-2 md:grid-cols-[220px,1fr] md:items-center">
       <label
         for="{{ form.generation.id_for_label }}"
-        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        class="text-sm font-semibold text-slate-600"
         >{{ form.generation.label }}</label
       >
-      <div class="col-sm-8">{{ form.generation }}</div>
+      <div>{{ form.generation }}</div>
     </div>
-    <div class="form-group row align-items-center">
+    <div class="form-row grid gap-2 md:grid-cols-[220px,1fr] md:items-center">
       <label
         for="{{ form.series.id_for_label }}"
-        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        class="text-sm font-semibold text-slate-600"
         >{{ form.series.label }}</label
       >
-      <div class="col-sm-8">{{ form.series }}</div>
+      <div>{{ form.series }}</div>
     </div>
-    <div class="form-group row align-items-center">
+    <div class="form-row grid gap-2 md:grid-cols-[220px,1fr] md:items-center">
       <label
         for="{{ form.modification.id_for_label }}"
-        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        class="text-sm font-semibold text-slate-600"
         >{{ form.modification.label }}</label
       >
-      <div class="col-sm-8">{{ form.modification }}</div>
+      <div>{{ form.modification }}</div>
     </div>
-    <div class="form-group row align-items-center mb-0">
+    <div class="form-row grid gap-2 md:grid-cols-[220px,1fr] md:items-center">
       <label
         for="{{ form.equipment.id_for_label }}"
-        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        class="text-sm font-semibold text-slate-600"
         >{{ form.equipment.label }}</label
       >
-      <div class="col-sm-8">{{ form.equipment }}</div>
+      <div>{{ form.equipment }}</div>
     </div>
-    <div class="form-group row align-items-center">
+    <div class="form-row flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
       <label
         for="{{ form.advanced.id_for_label }}"
-        class="col-sm-4 col-form-label font-weight-bold text-secondary"
+        class="text-sm font-semibold text-slate-700"
         >{{ form.advanced.label }}</label
       >
-      <div class="col-sm-8">{{ form.advanced }}</div>
+      <div class="flex items-center gap-2 text-sm text-slate-500">
+        {{ form.advanced }}
+        <span>Włącz dodatkowe kryteria</span>
+      </div>
     </div>
 
     <div id="advanced-options-group" class="mt-2">
-      <div class="card p-3">
-        <h6>Dodatkowe preferencje</h6>
-        <div class="preferences-list">
-          <div class="mb-2">
-            <label class="font-weight-bold">{{ form.pref_economy.label }}</label>
+      <div class="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <h3 class="text-sm font-semibold text-slate-800">Dodatkowe preferencje</h3>
+        <div class="preferences-list space-y-4">
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-slate-700"
+              >{{ form.pref_economy.label }}</label
+            >
             <div>{{ form.pref_economy }}</div>
           </div>
-          <div class="mb-2">
-            <label class="font-weight-bold">{{ form.pref_family.label }}</label>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-slate-700"
+              >{{ form.pref_family.label }}</label
+            >
             <div>{{ form.pref_family }}</div>
           </div>
-          <div class="mb-2">
-            <label class="font-weight-bold">{{ form.pref_reliability.label }}</label>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-slate-700"
+              >{{ form.pref_reliability.label }}</label
+            >
             <div>{{ form.pref_reliability }}</div>
           </div>
-          <div class="mb-2">
-            <label class="font-weight-bold">{{ form.pref_performance.label }}</label>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-slate-700"
+              >{{ form.pref_performance.label }}</label
+            >
             <div>{{ form.pref_performance }}</div>
           </div>
-          <div class="mb-2">
-            <label class="font-weight-bold">{{ form.pref_usage.label }}</label>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-slate-700"
+              >{{ form.pref_usage.label }}</label
+            >
             <div>{{ form.pref_usage }}</div>
           </div>
-          <div class="mb-2">
-            <label class="font-weight-bold">{{ form.pref_comfort.label }}</label>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-slate-700"
+              >{{ form.pref_comfort.label }}</label
+            >
             <div>{{ form.pref_comfort }}</div>
           </div>
         </div>
@@ -94,14 +119,16 @@
   </form>
 
   {% if response %}
-  <div class="card mt-4">
-    <div class="card-body">
-      <h5 class="card-title">AI Response</h5>
-      <pre class="mb-0">{{ response }}</pre>
+  <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-slate-900">AI Response</h2>
     </div>
+    <pre class="mt-3 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm text-slate-700">
+{{ response }}</pre
+    >
   </div>
   {% endif %}
-</div>
+</section>
 <script>
   // Pokazuj kolejne selecty tylko gdy mają opcje do wyboru
   const watchFieldIds = [
@@ -117,7 +144,7 @@
     watchFieldIds.forEach((fieldId) => {
       const field = document.getElementById(fieldId);
       if (!field) return;
-      const group = field.closest(".form-group");
+      const group = field.closest(".form-row");
       if (!group) return;
       const opts = field.options ? field.options.length : 0;
       // Jeśli jest tylko jeden option (placeholder), ukryj pole

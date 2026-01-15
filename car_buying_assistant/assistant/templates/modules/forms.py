@@ -86,12 +86,21 @@ class ChooseCar(forms.Form):
         self.fields["pref_performance"].choices = self._pref_performance_choices()
         self.fields["pref_usage"].choices = self._pref_usage_choices()
         self.fields["pref_comfort"].choices = self._pref_comfort_choices()
-        for field_name in self.fields:
-            self.fields[field_name].widget.attrs.update(
-                {"class": "form-control form-control-lg"}
-            )
+        select_classes = (
+            "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm "
+            "shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
+        )
+        checkbox_classes = "h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-200"
+        radio_list_classes = "radio-list space-y-2 text-sm text-slate-700"
+        for field in self.fields.values():
+            widget = field.widget
+            if isinstance(widget, forms.RadioSelect):
+                widget.attrs.update({"class": radio_list_classes})
+            elif isinstance(widget, forms.CheckboxInput):
+                widget.attrs.update({"class": checkbox_classes})
+            else:
+                widget.attrs.update({"class": select_classes})
 
-    
 
     def _selected_brand(self):
         return self.data.get("brand") or self.initial.get("brand")
