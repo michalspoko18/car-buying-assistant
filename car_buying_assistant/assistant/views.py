@@ -18,6 +18,7 @@ def home(request):
     if request.method == "POST":
         try:
             if form.is_valid():
+                wants_report = "generate_report" in request.POST
                 brand = form.cleaned_data["brand"]
                 model = form.cleaned_data["model"]
                 generation = form.cleaned_data["generation"]
@@ -66,13 +67,18 @@ def home(request):
                         except Exception:
                             continue
 
-                context["response"] = (
-                    "Received type: "
-                    f"{car_type}, brand: {brand_label}, model: {model_label}, "
-                    f"generation: {generation_label}, series: {series_label}, "
-                    f"modification: {modification_label}, equipment: {equipment_label}, "
-                    f"preferences: {', '.join(pref_labels)}"
-                )
+                if wants_report:
+                    car_data = {
+                        "car_type": car_type,
+                        "brand": brand_label or "brak",
+                        "model": model_label or "brak",
+                        "generation": generation_label or "brak",
+                        "series": series_label or "brak",
+                        "modification": modification_label or "brak",
+                        "equipment": equipment_label or "brak",
+                        "preferences": ", ".join(pref_labels) or "brak",
+                    }
+                    context["response"] = get_openai_client(car_data)
         except Exception as exc:
             context["response"] = f"Error calling OpenAI: {exc}"
 
