@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from openai import OpenAI
 
@@ -6,81 +8,86 @@ def get_openai_api_key():
     return settings.OPENAI_API_KEY
 
 
-REPORT_EXAMPLE = (
-    "Ocena dopasowania do preferencji:\n"
-    "- 8/10: bardzo dobre dopasowanie do potrzeb rodzinnych i komfortu, słabsza dynamika.\n"
-    "- Kluczowe preferencje spełnione: praktyczność, niezawodność, spokojna jazda.\n"
-    "\n"
-    "Plusy:\n"
-    "- przestronne wnętrze i pojemny bagażnik\n"
-    "- stabilne zachowanie na trasie i komfort zawieszenia\n"
-    "- szeroka dostępność części i serwisów\n"
-    "\n"
-    "Minusy:\n"
-    "- przeciętne osiągi przy pełnym obciążeniu\n"
-    "- wyższe spalanie w mieście\n"
-    "- przeciętne wyciszenie przy wyższych prędkościach\n"
-    "\n"
-    "Ryzyka / na co zwrócić uwagę przy zakupie:\n"
-    "- historia serwisowa automatu i interwały wymian oleju\n"
-    "- wycieki oleju z uszczelniaczy oraz zużycie tulei zawieszenia\n"
-    "- ślady korozji na podwoziu w egzemplarzach z importu\n"
-    "\n"
-    "Szacunkowe koszty eksploatacji i serwisu:\n"
-    "| Pozycja | Szacunek | Uwagi |\n"
-    "| --- | --- | --- |\n"
-    "| Przegląd okresowy | 900–1400 zł | olej + filtry |\n"
-    "| Klocki + tarcze (przód) | 700–1200 zł | zależnie od marki części |\n"
-    "| Opony (komplet) | 1600–2400 zł | rozmiar 17–18\" |\n"
-    "| Ubezpieczenie | 1800–3200 zł/rok | profil kierowcy |\n"
-    "\n"
-    "Dla kogo to auto / kiedy nie będzie dobrym wyborem:\n"
-    "- dla rodzin i osób jeżdżących w trasy oraz z pełnym bagażem\n"
-    "- nie dla osób oczekujących sportowych wrażeń lub niskich kosztów paliwa w mieście\n"
-    "\n"
-    "Podsumowanie i rekomendacja:\n"
-    "Rozsądny wybór do codziennej eksploatacji. Szukaj egzemplarzy z pełną "
-    "dokumentacją serwisową, najlepiej po weryfikacji stanu zawieszenia i skrzyni."
-)
+def _parse_json(text: str) -> dict:
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            try:
+                return json.loads(text[start : end + 1])
+            except json.JSONDecodeError:
+                return {}
+    return {}
 
 
-def get_openai_client(car_data: dict) -> str:
-    client = OpenAI()
-
-    input_text = (
-        "Przygotuj zaawansowany raport dla auta w języku polskim. Użyj dokładnie "
-        "poniższych nagłówków i zachowaj czytelny, powtarzalny format:\n"
-        "Ocena dopasowania do preferencji\n"
-        "Plusy\n"
-        "Minusy\n"
-        "Ryzyka / na co zwrócić uwagę przy zakupie\n"
-        "Szacunkowe koszty eksploatacji i serwisu\n"
-        "Dla kogo to auto / kiedy nie będzie dobrym wyborem\n"
-        "Podsumowanie i rekomendacja\n"
-        "W sekcji kosztów użyj tabeli Markdown z kolumnami: Pozycja | Szacunek | Uwagi.\n"
-        "W każdej sekcji używaj krótkich punktów lub krótkich akapitów.\n"
-        "Długość: 350–500 słów.\n"
-        "\n"
-        "Dane wejściowe:\n"
-        f"- marka: {car_data.get('brand')}\n"
-        f"- model: {car_data.get('model')}\n"
-        f"- generacja: {car_data.get('generation')}\n"
-        f"- seria: {car_data.get('series')}\n"
-        f"- modyfikacja: {car_data.get('modification')}\n"
-        f"- wyposażenie: {car_data.get('equipment')}\n"
-        f"- preferencje: {car_data.get('preferences')}\n"
-        "\n"
-        "Przykład formatu:\n"
-        f"{REPORT_EXAMPLE}"
-    )
-
-    response = client.responses.create(model="gpt-5-nano", input=input_text)
-
+def _call_openai(client: OpenAI, prompt: str) -> dict:
+    response = client.responses.create(model="gpt-5-nano", input=prompt)
     output_text = getattr(response, "output_text", None)
     if output_text is None:
         try:
             output_text = str(response)
         except Exception:
-            output_text = "No output_text available from the OpenAI response."
+            output_text = ""
+    return _parse_json(output_text or "")
 
-    return output_text
+
+def get_openai_report(car_data: dict) -> dict:
+    client = OpenAI()
+
+    base = (
+        "Dane auta:\n"
+        f"- marka: {car_data.get('brand')}\n"
+        f"- model: {car_data.get('model')}\n"
+        f"- generacja: {car_data.get('generation')}\n"
+        f"- seria: {car_data.get('series')}\n"
+        f"- modyfikacja: {car_data.get('modification')}\n"
+        f"- wyposazenie: {car_data.get('equipment')}\n"
+        f"- preferencje: {car_data.get('preferences')}\n"
+    )
+
+    fit_prompt = (
+        "Napisz sekcje oceny dopasowania. Zwroc tylko JSON.\n"
+        'Format: {"score":"8/10","summary":"...","bullets":["...","..."]}\n'
+        "Uzywaj krotkich zdan, bez markdown. Jezyk polski.\n"
+        f"{base}"
+    )
+    pros_cons_prompt = (
+        "Wygeneruj plusy i minusy. Zwroc tylko JSON.\n"
+        'Format: {"pros":["..."],"cons":["..."]}\n'
+        "Uzywaj krotkich punktow. Jezyk polski.\n"
+        f"{base}"
+    )
+    risks_prompt = (
+        "Wygeneruj ryzyka i na co zwrocic uwage przy zakupie. Zwroc tylko JSON.\n"
+        'Format: {"bullets":["...","..."]}\n'
+        "Uzywaj krotkich punktow. Jezyk polski.\n"
+        f"{base}"
+    )
+    costs_prompt = (
+        "Wygeneruj szacunkowe koszty eksploatacji i serwisu. Zwroc tylko JSON.\n"
+        'Format: {"rows":[{"item":"...","estimate":"...","notes":"..."}]}\n'
+        "Wartosci w PLN, krotkie opisy. Jezyk polski.\n"
+        f"{base}"
+    )
+    audience_prompt = (
+        "Wygeneruj dla kogo to auto i kiedy nie bedzie dobrym wyborem, oraz rekomendacje. Zwroc tylko JSON.\n"
+        'Format: {"for_whom":["..."],"not_for":["..."],"recommendation":"..."}\n'
+        "Uzywaj krotkich punktow i 1-2 zdania rekomendacji. Jezyk polski.\n"
+        f"{base}"
+    )
+
+    fit = _call_openai(client, fit_prompt)
+    pros_cons = _call_openai(client, pros_cons_prompt)
+    risks = _call_openai(client, risks_prompt)
+    costs = _call_openai(client, costs_prompt)
+    audience = _call_openai(client, audience_prompt)
+
+    return {
+        "fit": fit,
+        "pros_cons": pros_cons,
+        "risks": risks,
+        "costs": costs,
+        "audience": audience,
+    }
