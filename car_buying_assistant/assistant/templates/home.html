@@ -20,14 +20,110 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-primary btn-lg">Analyze</button>
   </form>
-
-  {% if response %}
-  <div class="card mt-4">
-    <div class="card-body">
-      <h5 class="card-title">AI Response</h5>
-      <pre class="mb-0">{{ response }}</pre>
-    </div>
+</section>
+<div
+  id="loading-screen"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60"
+>
+  <div class="flex flex-col items-center gap-4 rounded-2xl bg-white px-8 py-6 shadow-lg">
+    <div
+      class="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900"
+    ></div>
+    <p class="text-sm font-semibold text-slate-700">Generowanie raportu...</p>
   </div>
-  {% endif %}
 </div>
+<script>
+  // Pokazuj kolejne selecty tylko gdy mają opcje do wyboru
+  const watchFieldIds = [
+    "{{ form.brand.id_for_label }}",
+    "{{ form.model.id_for_label }}",
+    "{{ form.generation.id_for_label }}",
+    "{{ form.series.id_for_label }}",
+    "{{ form.modification.id_for_label }}",
+    "{{ form.equipment.id_for_label }}",
+  ];
+
+  function updateVisibility() {
+    watchFieldIds.forEach((fieldId) => {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+      const group = field.closest(".form-row");
+      if (!group) return;
+      const opts = field.options ? field.options.length : 0;
+      // Jeśli jest tylko jeden option (placeholder), ukryj pole
+      if (opts <= 1) group.style.display = "none";
+      else group.style.display = "";
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const carForm = document.getElementById("car-form");
+    const advancedCheckbox = document.getElementById("{{ form.advanced.id_for_label }}");
+    const advancedGroup = document.getElementById("advanced-options-group");
+    const loadingScreen = document.getElementById("loading-screen");
+    const generateButton = document.querySelector('button[name="generate_report"]');
+    const savedScroll = sessionStorage.getItem("scrollY");
+    if (savedScroll) {
+      window.scrollTo(0, Number(savedScroll));
+      sessionStorage.removeItem("scrollY");
+    }
+
+    window.addEventListener("beforeunload", () => {
+      sessionStorage.setItem("scrollY", window.scrollY.toString());
+    });
+
+    function toggleAdvanced() {
+      if (!advancedCheckbox || !advancedGroup) return;
+      advancedGroup.style.display = advancedCheckbox.checked ? "" : "none";
+      updateVisibility();
+    }
+
+    updateVisibility();
+    toggleAdvanced();
+
+    if (!carForm) return;
+    const showLoading = () => {
+      if (!loadingScreen) return;
+      loadingScreen.classList.remove("hidden");
+      loadingScreen.classList.add("flex");
+    };
+
+    if (generateButton) {
+      generateButton.addEventListener("click", () => {
+        showLoading();
+      });
+    }
+
+    carForm.addEventListener("submit", (event) => {
+      const submitter = event.submitter || document.activeElement;
+      if (submitter && submitter.name === "generate_report") {
+        showLoading();
+      }
+    });
+
+    if (advancedCheckbox) {
+      advancedCheckbox.addEventListener("change", () => {
+        toggleAdvanced();
+        carForm.submit();
+      });
+    }
+
+    watchFieldIds.forEach((fieldId) => {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+      field.addEventListener("change", () => {
+        carForm.submit();
+      });
+    });
+
+    const preferenceInputs = advancedGroup
+      ? advancedGroup.querySelectorAll('input[type="radio"]')
+      : [];
+    preferenceInputs.forEach((input) => {
+      input.addEventListener("change", () => {
+        carForm.submit();
+      });
+    });
+  });
+</script>
 {% endblock %}

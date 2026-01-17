@@ -1,0 +1,32 @@
+{% extends "base.html" %}{% block content %}
+<section class="space-y-6">
+  <div class="space-y-1">
+    <h1 class="text-2xl font-semibold text-slate-900">Raport AI</h1>
+    <p class="text-sm text-slate-600">
+      Poniżej znajdziesz wygenerowany raport. Możesz wrócić do formularza i
+      wygenerować kolejny.
+    </p>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    {% if response %}
+    <pre class="whitespace-pre-wrap rounded-lg bg-slate-50 p-4 text-sm text-slate-700">
+{{ response }}</pre
+    >
+    {% else %}
+    <p class="text-sm text-slate-600">
+      Brak raportu do wyświetlenia. Wróć do formularza i wygeneruj raport.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="flex justify-start">
+    <a
+      href="{% url 'home' %}"
+      class="inline-flex items-center rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+    >
+      Wróć do formularza
+    </a>
+  </div>
+</section>
+{% endblock %}
