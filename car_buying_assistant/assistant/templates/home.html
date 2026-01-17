@@ -140,6 +140,18 @@
   </div>
   {% endif %}
 </section>
+<div
+  id="loading-screen"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/70"
+  aria-live="polite"
+  aria-busy="true"
+>
+  <div class="rounded-2xl bg-white px-8 py-6 text-center shadow-xl">
+    <div class="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900"></div>
+    <p class="text-sm font-semibold text-slate-900">Generuje raport...</p>
+    <p class="mt-1 text-xs text-slate-500">To moze potrwac chwile.</p>
+  </div>
+</div>
 <script>
   // Pokazuj kolejne selecty tylko gdy mają opcje do wyboru
   const watchFieldIds = [
@@ -168,6 +180,7 @@
     const carForm = document.getElementById("car-form");
     const advancedCheckbox = document.getElementById("{{ form.advanced.id_for_label }}");
     const advancedGroup = document.getElementById("advanced-options-group");
+    const loadingScreen = document.getElementById("loading-screen");
     const savedScroll = sessionStorage.getItem("scrollY");
     if (savedScroll) {
       window.scrollTo(0, Number(savedScroll));
@@ -188,6 +201,13 @@
     toggleAdvanced();
 
     if (!carForm) return;
+    carForm.addEventListener("submit", (event) => {
+      const submitter = event.submitter;
+      if (submitter && submitter.name === "generate_report" && loadingScreen) {
+        loadingScreen.classList.remove("hidden");
+        loadingScreen.classList.add("flex");
+      }
+    });
     if (advancedCheckbox) {
       advancedCheckbox.addEventListener("change", () => {
         toggleAdvanced();

@@ -78,7 +78,8 @@ def home(request):
                         "equipment": equipment_label or "brak",
                         "preferences": ", ".join(pref_labels) or "brak",
                     }
-                    context["response"] = get_openai_client(car_data)
+                    request.session["report_response"] = get_openai_client(car_data)
+                    return redirect("report")
         except Exception as exc:
             if "generate_report" in request.POST:
                 request.session["report_response"] = f"Error calling OpenAI: {exc}"
