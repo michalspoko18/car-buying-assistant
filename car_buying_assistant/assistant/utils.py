@@ -50,6 +50,7 @@ def get_openai_report(car_data: dict) -> dict:
     fit_prompt = (
         "Napisz sekcje oceny dopasowania. Zwroc tylko JSON.\n"
         'Format: {"score":"8/10","summary":"...","bullets":["...","..."]}\n'
+        "Badz bardziej krytyczny: srednie wyniki powinny byc czestsze, a wysokie oceny rzadkie.\n"
         "Uzywaj krotkich zdan, bez markdown. Jezyk polski.\n"
         f"{base}"
     )

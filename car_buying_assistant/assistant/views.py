@@ -123,7 +123,7 @@ def report(request):
                 return trimmed[1:].lstrip()
             return text
 
-        def _list_html(items, strip_risk=False, strip_dash=False):
+        def _list_html(items, strip_risk=False, strip_dash=True):
             if not items:
                 return '<p class="text-sm text-slate-500">Brak danych.</p>'
             safe_items = []
@@ -152,7 +152,7 @@ def report(request):
                 "title": "Ocena dopasowania do preferencji",
                 "icon": "star",
                 "lead": (
-                    f"<p class=\"text-sm text-slate-600\"><strong>Ocena:</strong> "
+                    f"<p class=\"text-sm text-slate-600\"><strong>Dopasowanie:</strong> "
                     f"{escape(fit.get('score', 'brak'))}</p>"
                 ),
                 "body": (
