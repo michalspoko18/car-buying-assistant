@@ -1,17 +1,17 @@
 {% extends "base.html" %}{% block content %}
 <section class="space-y-6">
-  <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+  <div class="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-sm">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Raport zakupu</p>
-        <h1 class="text-2xl font-semibold text-slate-900">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-300">Raport zakupu</p>
+        <h1 class="text-2xl font-semibold text-white">
           {{ report_title|default:"Raport AI" }}
         </h1>
         {% if report_subtitle %}
-        <p class="mt-1 text-sm text-slate-600">{{ report_subtitle }}</p>
+        <p class="mt-1 text-sm text-slate-200">{{ report_subtitle }}</p>
         {% endif %}
       </div>
-      <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+      <span class="inline-flex items-center gap-2 rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-300/40">
         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.78-9.28a.75.75 0 10-1.06-1.06L9 11.94 7.28 10.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.06 0l4.25-4.25z" clip-rule="evenodd" />
         </svg>
@@ -29,10 +29,10 @@
   {% else %}
   <div class="grid gap-6 md:grid-cols-2">
     {% for section in sections %}
-    <article class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <article class="rounded-2xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200 backdrop-blur">
       <div class="flex items-start justify-between gap-3">
         <div class="flex items-center gap-2">
-          <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+          <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">
             {% if section.icon == "star" %}
             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.449a1 1 0 00-.363 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.449a1 1 0 00-1.176 0l-3.37 2.449c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.01 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z" />
@@ -70,9 +70,9 @@
     </article>
     {% endfor %}
 
-    <article class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:col-span-2">
+    <article class="rounded-2xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200 backdrop-blur md:col-span-2">
       <div class="flex items-center gap-2">
-        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600 ring-1 ring-amber-100">
           <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path d="M2 4a1 1 0 011-1h14a1 1 0 011 1v2H2V4z" />
             <path fill-rule="evenodd" d="M2 8h16v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8zm4 2a1 1 0 100 2h2a1 1 0 100-2H6zm6 0a1 1 0 100 2h2a1 1 0 100-2h-2z" clip-rule="evenodd" />
@@ -83,7 +83,7 @@
       <div class="mt-4 overflow-x-auto">
         <table class="w-full text-left text-sm text-slate-600">
           <thead class="text-xs uppercase text-slate-400">
-            <tr>
+            <tr class="odd:bg-slate-50/60">
               <th class="py-2 pr-3 font-semibold">Pozycja</th>
               <th class="py-2 pr-3 font-semibold">Szacunek</th>
               <th class="py-2 font-semibold">Uwagi</th>
