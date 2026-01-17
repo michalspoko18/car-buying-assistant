@@ -106,10 +106,35 @@ def report(request):
         car = report_data.get("car", {})
         report = report_data.get("report", {})
 
-        def _list_html(items):
+        def _strip_risk_prefix(text):
+            trimmed = text.lstrip()
+            lowered = trimmed.lower()
+            if lowered.startswith("ryzyko:"):
+                return trimmed[7:].lstrip()
+            if lowered.startswith("ryzyko "):
+                return trimmed[6:].lstrip()
+            if lowered == "ryzyko":
+                return ""
+            return text
+
+        def _strip_leading_dash(text):
+            trimmed = text.lstrip()
+            if trimmed.startswith("-"):
+                return trimmed[1:].lstrip()
+            return text
+
+        def _list_html(items, strip_risk=False, strip_dash=False):
             if not items:
                 return '<p class="text-sm text-slate-500">Brak danych.</p>'
-            lis = "".join(f"<li>{escape(item)}</li>" for item in items)
+            safe_items = []
+            for item in items:
+                text = item or ""
+                if strip_risk:
+                    text = _strip_risk_prefix(text)
+                if strip_dash:
+                    text = _strip_leading_dash(text)
+                safe_items.append(f"<li>{escape(text)}</li>")
+            lis = "".join(safe_items)
             return (
                 '<ul class="list-disc space-y-1 pl-5 text-sm leading-6 text-slate-600">'
                 f"{lis}</ul>"
@@ -141,21 +166,21 @@ def report(request):
                 "title": "Plusy",
                 "icon": "plus",
                 "lead": "",
-                "body": _list_html(pros_cons.get("pros", [])),
+                "body": _list_html(pros_cons.get("pros", []), strip_dash=True),
             },
             {
                 "id": "cons",
                 "title": "Minusy",
                 "icon": "minus",
                 "lead": "",
-                "body": _list_html(pros_cons.get("cons", [])),
+                "body": _list_html(pros_cons.get("cons", []), strip_dash=True),
             },
             {
                 "id": "risks",
                 "title": "Ryzyka / na co zwrocic uwage przy zakupie",
                 "icon": "alert",
                 "lead": "",
-                "body": _list_html(risks.get("bullets", [])),
+                "body": _list_html(risks.get("bullets", []), strip_risk=True),
             },
             {
                 "id": "audience",
