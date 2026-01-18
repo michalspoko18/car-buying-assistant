@@ -139,10 +139,72 @@
 
       .card-title {
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 700;
         margin: 0 0 12px 0;
         color: var(--text);
       }
+
+      .card-header {
+        display: table;
+        width: 100%;
+        margin-bottom: 12px;
+      }
+
+      .card-header-icon {
+        display: table-cell;
+        vertical-align: middle;
+        width: 36px;
+      }
+
+      .card-header-title {
+        display: table-cell;
+        vertical-align: middle;
+        padding-left: 10px;
+      }
+
+      .icon-box {
+        width: 36px;
+        min-width: 36px;
+        max-width: 36px;
+        height: 36px;
+        min-height: 36px;
+        max-height: 36px;
+        border-radius: 10px;
+        display: inline-block;
+        line-height: 36px;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      .icon-box svg {
+        width: 18px;
+        height: 18px;
+        vertical-align: middle;
+      }
+
+      .icon-amber {
+        background-color: #fef3c7 !important; /* bg-amber-100 */
+        border: 1px solid #fde68a; /* ring-amber-200 */
+      }
+      .icon-amber svg { fill: #d97706; } /* text-amber-600 */
+
+      .icon-emerald {
+        background-color: #d1fae5 !important; /* bg-emerald-100 */
+        border: 1px solid #a7f3d0; /* ring-emerald-200 */
+      }
+      .icon-emerald svg { fill: #059669; } /* text-emerald-600 */
+
+      .icon-rose {
+        background-color: #ffe4e6 !important; /* bg-rose-100 */
+        border: 1px solid #fecdd3; /* ring-rose-200 */
+      }
+      .icon-rose svg { fill: #e11d48; } /* text-rose-600 */
+
+      .icon-slate {
+        background-color: #f1f5f9 !important; /* bg-slate-100 */
+        border: 1px solid #e2e8f0; /* ring-slate-200 */
+      }
+      .icon-slate svg { fill: #475569; } /* text-slate-600 */
 
       .small {
         font-size: 13px;
@@ -247,7 +309,42 @@
           {% endif %}
             <td class="grid-cell">
               <div class="card">
-                <p class="card-title">{{ section.title }}</p>
+                <div class="card-header">
+                  <div class="card-header-icon">
+                    {% if section.icon == "star" %}
+                    <div class="icon-box icon-amber">
+                      <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.449a1 1 0 00-.363 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.449a1 1 0 00-1.176 0l-3.37 2.449c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.01 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"/></svg>
+                    </div>
+                    {% elif section.icon == "plus" %}
+                    <div class="icon-box icon-emerald">
+                      <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% elif section.icon == "minus" %}
+                    <div class="icon-box icon-rose">
+                      <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% elif section.icon == "alert" %}
+                    <div class="icon-box icon-amber">
+                      <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.72-1.36 3.485 0l6.518 11.59c.75 1.334-.213 2.991-1.742 2.991H3.48c-1.53 0-2.492-1.657-1.743-2.99l6.52-11.591zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-1-2a1 1 0 01-1-1V7a1 1 0 112 0v3a1 1 0 01-1 1z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% elif section.icon == "users" %}
+                    <div class="icon-box icon-slate">
+                      <svg viewBox="0 0 20 20"><path d="M13 7a3 3 0 11-6 0 3 3 0 016 0z"/><path fill-rule="evenodd" d="M4 14a6 6 0 1112 0v1H4v-1z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% elif section.icon == "flag" %}
+                    <div class="icon-box icon-slate">
+                      <svg viewBox="0 0 20 20"><path d="M3 3a1 1 0 000 2h1v11a1 1 0 102 0v-5h9a1 1 0 00.9-1.45L14 5H6V4a1 1 0 00-1-1H3z"/></svg>
+                    </div>
+                    {% else %}
+                    <div class="icon-box icon-slate">
+                      <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="card-header-title">
+                    <p class="card-title" style="margin:0">{{ section.title }}</p>
+                  </div>
+                </div>
                 {% if section.lead %}
                 <div class="small">{{ section.lead|safe }}</div>
                 {% endif %}
@@ -265,7 +362,16 @@
           <tr>
             <td colspan="2" class="grid-cell" style="width:100%">
               <div class="card">
-                <p class="card-title">Szacunkowe koszty eksploatacji</p>
+                <div class="card-header">
+                  <div class="card-header-icon">
+                    <div class="icon-box icon-amber">
+                      <svg viewBox="0 0 20 20"><path d="M2 4a1 1 0 011-1h14a1 1 0 011 1v2H2V4z"/><path fill-rule="evenodd" d="M2 8h16v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8zm4 2a1 1 0 100 2h2a1 1 0 100-2H6zm6 0a1 1 0 100 2h2a1 1 0 100-2h-2z" clip-rule="evenodd"/></svg>
+                    </div>
+                  </div>
+                  <div class="card-header-title">
+                    <p class="card-title" style="margin:0">Szacunkowe koszty eksploatacji</p>
+                  </div>
+                </div>
                 <table class="table">
                   <thead>
                     <tr>
