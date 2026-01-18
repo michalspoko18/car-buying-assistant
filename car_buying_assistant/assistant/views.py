@@ -1,5 +1,11 @@
+import os
+import shutil
+
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.utils.html import escape
+from django.utils.text import slugify
 from .utils import get_openai_report
 
 from .templates.modules.forms import ChooseCar
@@ -33,17 +39,27 @@ def home(request):
                     if not value:
                         return ""
                     try:
-                        obj = model.objects.using("car2db").filter(**{pk_field: value}).first()
+                        obj = (
+                            model.objects.using("car2db")
+                            .filter(**{pk_field: value})
+                            .first()
+                        )
                         return obj.name if obj is not None else value
                     except Exception:
                         return value
 
                 brand_label = _label_for(CarMake, "id_car_make", brand)
                 model_label = _label_for(CarModel, "id_car_model", model)
-                generation_label = _label_for(CarGeneration, "id_car_generation", generation)
+                generation_label = _label_for(
+                    CarGeneration, "id_car_generation", generation
+                )
                 series_label = _label_for(CarSerie, "id_car_serie", series)
-                modification_label = _label_for(CarTrim, "id_car_trim", modification)
-                equipment_label = _label_for(CarEquipment, "id_car_equipment", equipment)
+                modification_label = _label_for(
+                    CarTrim, "id_car_trim", modification
+                )
+                equipment_label = _label_for(
+                    CarEquipment, "id_car_equipment", equipment
+                )
 
                 # collect grouped preference selections (radio fields)
                 pref_fields = [
@@ -86,7 +102,9 @@ def home(request):
                     return redirect("report")
         except Exception as exc:
             if "generate_report" in request.POST:
-                request.session["report_response"] = f"Error calling OpenAI: {exc}"
+                request.session["report_response"] = (
+                    f"Error calling OpenAI: {exc}"
+                )
                 return redirect("report")
             context["response"] = f"Error calling OpenAI: {exc}"
 
@@ -101,10 +119,78 @@ def home(request):
 
 
 def report(request):
+    return render(
+        request,
+        "report.html",
+        _build_report_context(request, for_pdf=False),
+    )
+
+
+def report_pdf(request):
+    try:
+        import pdfkit
+    except Exception as exc:
+        return HttpResponse(
+            "Brak zaleznosci do generowania PDF.\n"
+            "Zainstaluj: pip install -r requirements.txt\n\n"
+            f"Szczegoly: {exc}\n",
+            status=500,
+            content_type="text/plain; charset=utf-8",
+        )
+
+    context = _build_report_context(request, for_pdf=True)
+    html = render_to_string(
+        "report_pdf.html",
+        context=context,
+        request=request,
+    )
+
+    wkhtmltopdf_cmd = (
+        os.environ.get("WKHTMLTOPDF_CMD")
+        or shutil.which("wkhtmltopdf")
+    )
+    if not wkhtmltopdf_cmd:
+        return HttpResponse(
+            "wkhtmltopdf nie jest zainstalowany lub nie jest w PATH.\n"
+            "Zainstaluj go i sproboj ponownie.\n\n"
+            "macOS (Homebrew): brew install wkhtmltopdf\n"
+            "Albo ustaw zmienna srodowiskowa WKHTMLTOPDF_CMD "
+            "na pelna sciezke do binarki.\n",
+            status=500,
+            content_type="text/plain; charset=utf-8",
+        )
+
+    config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_cmd)
+    options = {
+        "encoding": "UTF-8",
+        "print-media-type": "",
+        "margin-top": "12mm",
+        "margin-right": "12mm",
+        "margin-bottom": "14mm",
+        "margin-left": "12mm",
+        "disable-smart-shrinking": "",
+        "quiet": "",
+    }
+
+    pdf_bytes = pdfkit.from_string(
+        html,
+        False,
+        options=options,
+        configuration=config,
+    )
+
+    title = context.get("report_title") or "raport"
+    filename = f"{slugify(title) or 'raport'}.pdf"
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
+
+
+def _build_report_context(request, for_pdf: bool):
     report_data = request.session.get("report_data")
     if report_data:
         car = report_data.get("car", {})
-        report = report_data.get("report", {})
+        report_obj = report_data.get("report", {})
 
         def _strip_risk_prefix(text):
             trimmed = text.lstrip()
@@ -125,6 +211,8 @@ def report(request):
 
         def _list_html(items, strip_risk=False, strip_dash=True):
             if not items:
+                if for_pdf:
+                    return '<p class="muted small">Brak danych.</p>'
                 return '<p class="text-sm text-slate-500">Brak danych.</p>'
             safe_items = []
             for item in items:
@@ -135,31 +223,74 @@ def report(request):
                     text = _strip_leading_dash(text)
                 safe_items.append(f"<li>{escape(text)}</li>")
             lis = "".join(safe_items)
+            if for_pdf:
+                return f"<ul class=\"list\">{lis}</ul>"
             return (
-                '<ul class="list-disc space-y-1 pl-5 text-sm leading-6 text-slate-600">'
+                '<ul class="list-disc space-y-1 pl-5 text-sm leading-6 '
+                'text-slate-600">'
                 f"{lis}</ul>"
             )
 
-        fit = report.get("fit", {})
-        pros_cons = report.get("pros_cons", {})
-        risks = report.get("risks", {})
-        costs = report.get("costs", {})
-        audience = report.get("audience", {})
+        fit = report_obj.get("fit", {})
+        pros_cons = report_obj.get("pros_cons", {})
+        risks = report_obj.get("risks", {})
+        costs = report_obj.get("costs", {})
+        audience = report_obj.get("audience", {})
+
+        if for_pdf:
+            fit_score = escape(fit.get("score", "brak"))
+            fit_lead = (
+                "<p class=\"small\"><strong>Dopasowanie:</strong> "
+                f"{fit_score}</p>"
+            )
+            fit_body = (
+                f"<p class=\"muted small\">"
+                f"{escape(fit.get('summary', ''))}</p>"
+                f"{_list_html(fit.get('bullets', []))}"
+            )
+            audience_body = (
+                "<p class=\"small\"><strong>Dla kogo:</strong></p>"
+                f"{_list_html(audience.get('for_whom', []))}"
+                "<p class=\"small spacer\"><strong>Nie dla:</strong></p>"
+                f"{_list_html(audience.get('not_for', []))}"
+            )
+            recommendation = escape(audience.get("recommendation", ""))
+            summary_body = (
+                "<p class=\"small\"><strong>Rekomendacja:</strong> "
+                f"{recommendation}</p>"
+            )
+        else:
+            fit_lead = (
+                "<p class=\"text-sm text-slate-600\">"
+                "<strong>Dopasowanie:</strong> "
+                f"{escape(fit.get('score', 'brak'))}</p>"
+            )
+            fit_body = (
+                "<p class=\"mt-2 text-sm text-slate-600\">"
+                f"{escape(fit.get('summary', ''))}</p>"
+                f"{_list_html(fit.get('bullets', []))}"
+            )
+            audience_body = (
+                "<p class=\"text-sm text-slate-700\">"
+                "<strong>Dla kogo:</strong></p>"
+                f"{_list_html(audience.get('for_whom', []))}"
+                "<p class=\"mt-3 text-sm text-slate-700\">"
+                "<strong>Nie dla:</strong></p>"
+                f"{_list_html(audience.get('not_for', []))}"
+            )
+            summary_body = (
+                "<p class=\"text-sm text-slate-600\">"
+                "<strong>Rekomendacja:</strong> "
+                f"{escape(audience.get('recommendation', ''))}</p>"
+            )
 
         sections = [
             {
                 "id": "fit",
                 "title": "Ocena dopasowania do preferencji",
                 "icon": "star",
-                "lead": (
-                    f"<p class=\"text-sm text-slate-600\"><strong>Dopasowanie:</strong> "
-                    f"{escape(fit.get('score', 'brak'))}</p>"
-                ),
-                "body": (
-                    f"<p class=\"mt-2 text-sm text-slate-600\">"
-                    f"{escape(fit.get('summary', ''))}</p>"
-                    f"{_list_html(fit.get('bullets', []))}"
-                ),
+                "lead": fit_lead,
+                "body": fit_body,
             },
             {
                 "id": "pros",
@@ -187,22 +318,14 @@ def report(request):
                 "title": "Dla kogo to auto / kiedy nie bedzie dobrym wyborem",
                 "icon": "users",
                 "lead": "",
-                "body": (
-                    "<p class=\"text-sm text-slate-700\"><strong>Dla kogo:</strong></p>"
-                    f"{_list_html(audience.get('for_whom', []))}"
-                    "<p class=\"mt-3 text-sm text-slate-700\"><strong>Nie dla:</strong></p>"
-                    f"{_list_html(audience.get('not_for', []))}"
-                ),
+                "body": audience_body,
             },
             {
                 "id": "summary",
                 "title": "Podsumowanie i rekomendacja",
                 "icon": "flag",
                 "lead": "",
-                "body": (
-                    f"<p class=\"text-sm text-slate-600\"><strong>Rekomendacja:</strong> "
-                    f"{escape(audience.get('recommendation', ''))}</p>"
-                ),
+                "body": summary_body,
             },
         ]
 
@@ -214,7 +337,9 @@ def report(request):
             car.get("series", ""),
             car.get("modification", ""),
         ]
-        title = " ".join([bit for bit in title_bits if bit and bit != "brak"]).strip()
+        title = " ".join(
+            [bit for bit in title_bits if bit and bit != "brak"]
+        ).strip()
         if not title:
             title = "Wybrane auto"
         subtitle_parts = [
@@ -222,17 +347,13 @@ def report(request):
             f"Preferencje: {car.get('preferences', 'brak')}",
         ]
         subtitle = " | ".join(subtitle_parts)
-        return render(
-            request,
-            "report.html",
-            {
-                "response": None,
-                "sections": sections,
-                "costs_rows": costs_rows,
-                "report_title": title,
-                "report_subtitle": subtitle,
-            },
-        )
+        return {
+            "response": None,
+            "sections": sections,
+            "costs_rows": costs_rows,
+            "report_title": title,
+            "report_subtitle": subtitle,
+        }
 
     response = request.session.get("report_response")
     sections = []
@@ -244,20 +365,22 @@ def report(request):
             lines = part.splitlines()
             title = lines[0].strip()
             body = "\n".join(lines[1:]).strip()
-            sections.append(
-                {
-                    "title": title,
-                    "body": body,
-                }
-            )
-    return render(
-        request,
-        "report.html",
-        {
-            "response": response,
-            "sections": sections,
-            "costs_rows": [],
-            "report_title": "",
-            "report_subtitle": "",
-        },
-    )
+            if for_pdf:
+                body = escape(body).replace("\n", "<br>")
+                sections.append(
+                    {
+                        "title": title,
+                        "body": f"<p class=\"small muted\">{body}</p>",
+                        "icon": "",
+                    }
+                )
+            else:
+                sections.append({"title": title, "body": body})
+
+    return {
+        "response": response,
+        "sections": sections,
+        "costs_rows": [],
+        "report_title": "",
+        "report_subtitle": "",
+    }

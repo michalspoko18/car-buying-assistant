@@ -119,12 +119,20 @@
   {% endif %}
 
   <div class="flex justify-start">
-    <a
-      href="{% url 'home' %}"
-      class="inline-flex items-center rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-    >
-      Wroc do formularza
-    </a>
+    <div class="flex flex-wrap items-center gap-3">
+      <a
+        href="{% url 'report_pdf' %}"
+        class="inline-flex items-center rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+      >
+        Pobierz PDF
+      </a>
+      <a
+        href="{% url 'home' %}"
+        class="inline-flex items-center rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+      >
+        Wroc do formularza
+      </a>
+    </div>
   </div>
 </section>
 {% endblock %}
