@@ -124,12 +124,14 @@
       }
 
       .card {
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid var(--ring);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
+        background-color: #ffffff !important;
+        border: 2px solid #e2e8f0 !important; /* stronger visible border */
+        border-radius: 16px; /* rounded-2xl like on site */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         padding: 20px;
         color: var(--text);
+        /* subtle background tint to stand out from page */
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
         /* avoid splitting cards across pages */
         page-break-inside: avoid;
         break-inside: avoid;
