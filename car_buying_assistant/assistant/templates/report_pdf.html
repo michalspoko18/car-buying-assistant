@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
@@ -6,7 +6,11 @@
     <title>Raport PDF</title>
     <style>
       /* Improve color rendering for wkhtmltopdf */
-      html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html,
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
       @page {
         size: A4;
       }
@@ -28,8 +32,9 @@
         padding: 0;
         color: var(--text);
         background: var(--bg);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, "Noto Sans", "Helvetica Neue",
-          sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial,
+          "Noto Sans", "Helvetica Neue", sans-serif;
       }
 
       .container {
@@ -44,7 +49,7 @@
         color: #fff;
         box-shadow: var(--shadow);
         background: linear-gradient(90deg, #020617, #0b1220);
-        border: 1px solid rgba(255,255,255,0.06);
+        border: 1px solid rgba(255, 255, 255, 0.06);
       }
 
       .header-top {
@@ -123,11 +128,11 @@
         background: var(--card);
         border: 1px solid var(--ring);
         border-radius: var(--radius);
-        box-shadow: 0 6px 12px rgba(2,6,23,0.04);
+        box-shadow: 0 6px 12px rgba(2, 6, 23, 0.04);
         padding: 14px 14px;
         color: var(--text);
         /* subtle inner highlight to mimic ring */
-        outline: 1px solid rgba(255,255,255,0.02);
+        outline: 1px solid rgba(255, 255, 255, 0.02);
         /* avoid splitting cards across pages */
         page-break-inside: avoid;
         break-inside: avoid;
@@ -225,8 +230,7 @@
             <h1 class="title">{{ report_title|default:"Raport AI" }}</h1>
             {% if report_title %}
             <p class="model-line">Wybrany model: {{ report_title }}</p>
-            {% endif %}
-            {% if report_subtitle %}
+            {% endif %} {% if report_subtitle %}
             <p class="subtitle">{{ report_subtitle }}</p>
             {% endif %}
           </div>
@@ -237,7 +241,7 @@
       </div>
 
       {% if response and not report_title %}
-      <div class="card" style="margin-top: 14px;">
+      <div class="card" style="margin-top: 14px">
         <p class="card-title">Odpowiedz</p>
         <p class="small muted">{{ response }}</p>
       </div>
@@ -282,8 +286,6 @@
       {% endif %}
     </div>
 
-    <div class="footer">
-      Wygenerowano: {% now "Y-m-d H:i" %}
-    </div>
+    <div class="footer">Wygenerowano: {% now "Y-m-d H:i" %}</div>
   </body>
 </html>
