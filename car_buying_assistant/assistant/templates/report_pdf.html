@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raport PDF</title>
+    <style>
+      /* Improve color rendering for wkhtmltopdf */
+      html,
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      @page {
+        size: A4;
+      }
+
+      :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #334155;
+        --muted-2: #64748b;
+        --ring: #e2e8f0; /* ring-slate-200 */
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        --radius: 16px;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        color: var(--text);
+        background: var(--bg);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial,
+          "Noto Sans", "Helvetica Neue", sans-serif;
+      }
+
+      .container {
+        width: 100%;
+        padding: 18px 18px 0 18px;
+        box-sizing: border-box;
+      }
+
+      .header {
+        border-radius: 24px;
+        padding: 24px 24px;
+        color: #fff !important;
+        box-shadow: var(--shadow);
+        /* solid dark background for wkhtmltopdf compatibility */
+        background-color: #0f172a !important;
+        background: #0f172a !important;
+      }
+
+      .header-top {
+        display: table;
+        width: 100%;
+      }
+      .header-left {
+        display: table-cell;
+        vertical-align: top;
+      }
+      .header-right {
+        display: table-cell;
+        text-align: right;
+        vertical-align: top;
+        width: 180px;
+      }
+
+      .kicker {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #94a3b8 !important; /* text-slate-400 for better contrast */
+        margin: 0 0 4px 0;
+      }
+
+      .title {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        color: #ffffff !important;
+      }
+
+      .subtitle {
+        margin: 6px 0 0 0;
+        font-size: 13px;
+        color: #cbd5e1 !important; /* text-slate-300 */
+      }
+      .car-info {
+        margin: 8px 0 0 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #f1f5f9 !important; /* text-slate-100 */
+      }
+      .badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #10b981 !important; /* text-emerald-500 */
+        background-color: #d1fae5 !important; /* bg-emerald-100 */
+        border: 1px solid #6ee7b7; /* border-emerald-300 */
+        white-space: nowrap;
+      }
+
+      /* Two-column grid using table for wkhtmltopdf compatibility */
+      .grid {
+        margin-top: 16px;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 12px;
+      }
+
+      .grid-cell {
+        width: 50%;
+        vertical-align: top;
+      }
+
+      .modules {
+        margin-top: 16px;
+      }
+
+      .card {
+        background-color: #ffffff !important;
+        border: 2px solid #e2e8f0 !important; /* stronger visible border */
+        border-radius: 16px; /* rounded-2xl like on site */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        color: var(--text);
+        /* subtle background tint to stand out from page */
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+        /* avoid splitting cards across pages */
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      .card-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        color: var(--text);
+      }
+
+      .card-header {
+        display: table;
+        width: 100%;
+        margin-bottom: 12px;
+      }
+
+      .card-header-icon {
+        display: table-cell;
+        vertical-align: middle;
+        width: 36px;
+      }
+
+      .card-header-title {
+        display: table-cell;
+        vertical-align: middle;
+        padding-left: 10px;
+      }
+
+      .icon-box {
+        width: 36px;
+        min-width: 36px;
+        max-width: 36px;
+        height: 36px;
+        min-height: 36px;
+        max-height: 36px;
+        border-radius: 10px;
+        display: inline-block;
+        line-height: 36px;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      .icon-box svg {
+        width: 18px;
+        height: 18px;
+        vertical-align: middle;
+      }
+
+      .icon-amber {
+        background-color: #fef3c7 !important; /* bg-amber-100 */
+        border: 1px solid #fde68a; /* ring-amber-200 */
+      }
+      .icon-amber svg { fill: #d97706; } /* text-amber-600 */
+
+      .icon-emerald {
+        background-color: #d1fae5 !important; /* bg-emerald-100 */
+        border: 1px solid #a7f3d0; /* ring-emerald-200 */
+      }
+      .icon-emerald svg { fill: #059669; } /* text-emerald-600 */
+
+      .icon-rose {
+        background-color: #ffe4e6 !important; /* bg-rose-100 */
+        border: 1px solid #fecdd3; /* ring-rose-200 */
+      }
+      .icon-rose svg { fill: #e11d48; } /* text-rose-600 */
+
+      .icon-slate {
+        background-color: #f1f5f9 !important; /* bg-slate-100 */
+        border: 1px solid #e2e8f0; /* ring-slate-200 */
+      }
+      .icon-slate svg { fill: #475569; } /* text-slate-600 */
+
+      .small {
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .list {
+        margin: 10px 0 0 18px;
+        padding: 0;
+      }
+
+      .list li {
+        margin: 4px 0;
+      }
+
+      .spacer {
+        margin-top: 10px;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .table th {
+        text-align: left;
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text);
+        padding: 8px 8px;
+        border-bottom: 1px solid var(--ring);
+      }
+
+      .table td {
+        padding: 8px 8px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: top;
+      }
+
+      .table td strong {
+        color: var(--text);
+      }
+
+      .footer {
+        padding: 10px 18px 16px 18px;
+        color: var(--muted-2);
+        font-size: 10px;
+      }
+
+      /* Reduce widow/orphan weirdness in wkhtmltopdf */
+      .card,
+      .header {
+        page-break-inside: avoid;
+      }
+
+      /* Force nice breaks after full rows */
+      tr {
+        page-break-inside: avoid;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-top">
+          <div class="header-left">
+            <p class="kicker">Raport zakupu</p>
+            <h1 class="title">{{ report_title|default:"Raport AI" }}</h1>
+            {% if report_title and report_title != "Raport AI" %}
+            <p class="car-info">Wygenerowano dla: {{ report_title }}</p>
+            {% endif %}
+            {% if report_subtitle %}
+            <p class="subtitle">{{ report_subtitle }}</p>
+            {% endif %}
+          </div>
+          <div class="header-right">
+            <span class="badge">✓ Wygenerowany</span>
+          </div>
+        </div>
+      </div>
+
+      {% if response and not report_title %}
+      <div class="card" style="margin-top: 16px">
+        <p class="card-title">Odpowiedz</p>
+        <p class="small muted">{{ response }}</p>
+      </div>
+      {% else %}
+      <table class="grid">
+        <tbody>
+          {% for section in sections %}
+          {% if forloop.counter0|divisibleby:2 %}
+          <tr>
+          {% endif %}
+            <td class="grid-cell">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-header-icon">
+                    {% if section.icon == "star" %}
+                    <div class="icon-box icon-amber">
+                      <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.449a1 1 0 00-.363 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.449a1 1 0 00-1.176 0l-3.37 2.449c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.01 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z"/></svg>
+                    </div>
+                    {% elif section.icon == "plus" %}
+                    <div class="icon-box icon-emerald">
+                      <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% elif section.icon == "minus" %}
+                    <div class="icon-box icon-rose">
+                      <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% elif section.icon == "alert" %}
+                    <div class="icon-box icon-amber">
+                      <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.72-1.36 3.485 0l6.518 11.59c.75 1.334-.213 2.991-1.742 2.991H3.48c-1.53 0-2.492-1.657-1.743-2.99l6.52-11.591zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-1-2a1 1 0 01-1-1V7a1 1 0 112 0v3a1 1 0 01-1 1z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% elif section.icon == "users" %}
+                    <div class="icon-box icon-slate">
+                      <svg viewBox="0 0 20 20"><path d="M13 7a3 3 0 11-6 0 3 3 0 016 0z"/><path fill-rule="evenodd" d="M4 14a6 6 0 1112 0v1H4v-1z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% elif section.icon == "flag" %}
+                    <div class="icon-box icon-slate">
+                      <svg viewBox="0 0 20 20"><path d="M3 3a1 1 0 000 2h1v11a1 1 0 102 0v-5h9a1 1 0 00.9-1.45L14 5H6V4a1 1 0 00-1-1H3z"/></svg>
+                    </div>
+                    {% else %}
+                    <div class="icon-box icon-slate">
+                      <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="card-header-title">
+                    <p class="card-title" style="margin:0">{{ section.title }}</p>
+                  </div>
+                </div>
+                {% if section.lead %}
+                <div class="small">{{ section.lead|safe }}</div>
+                {% endif %}
+                <div class="small">{{ section.body|safe }}</div>
+              </div>
+            </td>
+          {% if forloop.counter|divisibleby:2 %}
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% if sections|length|divisibleby:2 == False %}
+          <td class="grid-cell"></td>
+          </tr>
+          {% endif %}
+          <tr>
+            <td colspan="2" class="grid-cell" style="width:100%">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-header-icon">
+                    <div class="icon-box icon-amber">
+                      <svg viewBox="0 0 20 20"><path d="M2 4a1 1 0 011-1h14a1 1 0 011 1v2H2V4z"/><path fill-rule="evenodd" d="M2 8h16v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8zm4 2a1 1 0 100 2h2a1 1 0 100-2H6zm6 0a1 1 0 100 2h2a1 1 0 100-2h-2z" clip-rule="evenodd"/></svg>
+                    </div>
+                  </div>
+                  <div class="card-header-title">
+                    <p class="card-title" style="margin:0">Szacunkowe koszty eksploatacji</p>
+                  </div>
+                </div>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Pozycja</th>
+                      <th>Szacunek</th>
+                      <th>Uwagi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in costs_rows %}
+                    <tr>
+                      <td><strong>{{ row.item }}</strong></td>
+                      <td>{{ row.estimate }}</td>
+                      <td>{{ row.notes }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="3" class="muted">Brak danych o kosztach.</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+
+    <div class="footer">Wygenerowano: {% now "Y-m-d H:i" %}</div>
+  </body>
+</html>
